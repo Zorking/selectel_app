@@ -1,10 +1,12 @@
 from django.http import HttpResponseBadRequest, HttpResponse
 from rest_framework.parsers import JSONParser
+from rest_framework.renderers import JSONRenderer
+from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from api.auth import VkAuthentication
 from api.models import User
-from api.selectel import get_sid
+from api.selectel import get_sid, get_tickets
 
 
 class RegisterView(APIView):
@@ -23,9 +25,16 @@ class RegisterView(APIView):
         return HttpResponse()
 
 
-class TasksView(APIView):
+class TicketsView(APIView):
     authentication_classes = (VkAuthentication,)
+    renderer_classes = (JSONRenderer,)
     parser_classes = (JSONParser,)
 
     def get(self, request):
+        content = get_tickets(request.user.uid, request.user.sid)
+        if not content:
+            return HttpResponseBadRequest()
+        return Response(content)
+
+    def post(self, request):
         pass

@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-gunicorn selectel_app.wsgi
+gunicorn selectel_app.wsgi --reload

@@ -4,6 +4,8 @@ import requests
 from keystoneauth1 import loading
 from keystoneauth1 import session
 from novaclient import client
+from keystoneauth1.exceptions import NotFound as keystone_err
+from novaclient.exceptions import NotFound as nova_err
 
 selectel_logger = logging.getLogger('selectel')
 
@@ -122,11 +124,25 @@ class ServerAction(ProjectConnector):
         super(ServerAction, self).__init__(project)
         self.server_id = server_id
 
+    def _get_server(self):
+        try:
+            return self.nova.servers.find(id=self.server_id)
+        except (nova_err, keystone_err):
+            return
+
     def soft_reboot(self):
-        self.nova.servers.find(id=self.server_id)
+        server = self._get_server()
+        if not server:
+            return False
+        server.reboot(reboot_type='REBOOT_SOFT')
+        return True
 
     def hard_reboot(self):
-        self.nova.servers.find(id=self.server_id)
+        server = self._get_server()
+        if not server:
+            return False
+        server.reboot(reboot_type='REBOOT_HARD')
+        return True
 
     def pause(self):
         self.nova.servers.find(id=self.server_id)

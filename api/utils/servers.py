@@ -115,3 +115,27 @@ class ProjectConnector:
         if resp.status_code != 200:
             return
         return {'os': resp.json().get('image', {}).get('name')}
+
+
+class ServerAction(ProjectConnector):
+    def __init__(self, project, server_id):
+        super(ServerAction, self).__init__(project)
+        self.server_id = server_id
+
+    def soft_reboot(self):
+        self.nova.servers.find(id=self.server_id)
+
+    def hard_reboot(self):
+        self.nova.servers.find(id=self.server_id)
+
+    def pause(self):
+        self.nova.servers.find(id=self.server_id)
+
+    def unpause(self):
+        self.nova.servers.find(id=self.server_id)
+
+    def start(self):
+        self.nova.servers.find(id=self.server_id)
+
+    def stop(self):
+        self.nova.servers.find(id=self.server_id)

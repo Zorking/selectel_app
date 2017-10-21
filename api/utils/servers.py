@@ -134,14 +134,20 @@ class ServerAction(ProjectConnector):
         server = self._get_server()
         if not server:
             return False
-        server.reboot(reboot_type='SOFT')
+        try:
+            server.reboot(reboot_type='SOFT')
+        except Conflict:
+            pass
         return True
 
     def hard_reboot(self):
         server = self._get_server()
         if not server:
             return False
-        server.reboot(reboot_type='HARD')
+        try:
+            server.reboot(reboot_type='HARD')
+        except Conflict:
+            pass
         return True
 
     def pause(self):

@@ -53,12 +53,13 @@ class ServersView(APIView):
 class ServerDetailView(APIView):
     authentication_classes = (VkAuthentication,)
     renderer_classes = (JSONRenderer,)
+
     # parser_classes = (JSONParser,)
 
     def post(self, request):
         data = request.data
         project_name = data.get('projectName')
-
+        server_id = data.get('id')
         req = {
             'flavor_id': data.get('flavor_id'),
             'image_id': data.get('image_id'),
@@ -67,4 +68,60 @@ class ServerDetailView(APIView):
         }
         if None in req.values():
             return HttpResponseBadRequest()
-        return Response(get_details(**req))
+        details = get_details(**req)
+        details.update({'id': server_id})
+        return Response(details)
+
+
+class ServerHardReboot(APIView):
+    authentication_classes = (VkAuthentication,)
+    renderer_classes = (JSONRenderer,)
+    parser_classes = (JSONParser,)
+
+    def post(self, requests):
+        pass
+
+
+class ServerSoftReboot(APIView):
+    authentication_classes = (VkAuthentication,)
+    renderer_classes = (JSONRenderer,)
+    parser_classes = (JSONParser,)
+
+    def post(self, requests):
+        pass
+
+
+class ServerPause(APIView):
+    authentication_classes = (VkAuthentication,)
+    renderer_classes = (JSONRenderer,)
+    parser_classes = (JSONParser,)
+
+    def post(self, requests):
+        pass
+
+
+class ServerUnpause(APIView):
+    authentication_classes = (VkAuthentication,)
+    renderer_classes = (JSONRenderer,)
+    parser_classes = (JSONParser,)
+
+    def post(self, requests):
+        pass
+
+
+class ServerStart(APIView):
+    authentication_classes = (VkAuthentication,)
+    renderer_classes = (JSONRenderer,)
+    parser_classes = (JSONParser,)
+
+    def post(self, requests):
+        pass
+
+
+class ServerStop(APIView):
+    authentication_classes = (VkAuthentication,)
+    renderer_classes = (JSONRenderer,)
+    parser_classes = (JSONParser,)
+
+    def post(self, requests):
+        pass

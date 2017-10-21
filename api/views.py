@@ -6,7 +6,7 @@ from rest_framework.views import APIView
 
 from api.auth import VkAuthentication
 from api.models import User
-from api.selectel import get_sid, get_tickets
+from api.utils.support import get_sid, get_tickets
 
 
 class RegisterView(APIView):

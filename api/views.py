@@ -7,6 +7,7 @@ from rest_framework.views import APIView
 from api.auth import VkAuthentication
 from api.models import User
 from api.utils.support import get_sid, get_tickets
+from api.utils.view_helper import get_server_list, get_details
 
 
 class RegisterView(APIView):
@@ -41,21 +42,29 @@ class TicketsView(APIView):
 
 
 class ServersView(APIView):
+    authentication_classes = (VkAuthentication,)
     renderer_classes = (JSONRenderer,)
 
     def get(self, request):
-        resp = [
-            {
-                'id': 'qweasd123wqd1f1gg42g4',
-                'name': 'Vitalik',
-                'project_name': 'hui',
-                'addr': '228.228.14.88',
-                'ram': 4096,
-                'cpus': 4,
-                'status': 'active',
-                'description': 'qwe blabla hui pizda asd reqtqg bbbbb rrrr',
-                'tags': ['test', 'test2'],
+        res = get_server_list(request.user)
+        return Response(res)
 
-            }
-        ]
-        return Response(resp)
+
+class ServerDetailView(APIView):
+    authentication_classes = (VkAuthentication,)
+    renderer_classes = (JSONRenderer,)
+    # parser_classes = (JSONParser,)
+
+    def post(self, request):
+        data = request.data
+        project_name = data.get('projectName')
+
+        req = {
+            'flavor_id': data.get('flavor_id'),
+            'image_id': data.get('image_id'),
+            'volume_id': data.get('volume_id'),
+            'project': request.user.projects.filter(name=project_name).first()
+        }
+        if None in req.values():
+            return HttpResponseBadRequest()
+        return Response(get_details(**req))

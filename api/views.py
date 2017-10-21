@@ -38,3 +38,24 @@ class TicketsView(APIView):
 
     def post(self, request):
         pass
+
+
+class ServersView(APIView):
+    renderer_classes = (JSONRenderer,)
+
+    def get(self, request):
+        resp = [
+            {
+                'id': 'qweasd123wqd1f1gg42g4',
+                'name': 'Vitalik',
+                'project_name': 'hui',
+                'addr': '228.228.14.88',
+                'ram': 4096,
+                'cpus': 4,
+                'status': 'active',
+                'description': 'qwe blabla hui pizda asd reqtqg bbbbb rrrr',
+                'tags': ['test', 'test2'],
+
+            }
+        ]
+        return Response(resp)

@@ -38,6 +38,15 @@ class ProjectConnector:
         sess = session.Session(auth=auth)
         self.nova = client.Client(2.38, session=sess, region_name='ru-1')
 
+    def get_volume_info(self, volume_id):
+        resp = requests.get('https://api.selvpc.ru/volume/v3/{}/volumes/{}'.format(self.project.project_id, volume_id),
+                            headers={'X-Auth-Token': self.project.token})
+        if resp.status_code != 200:
+            return
+        volume = resp.json().get('volume', {})
+        volume_type = 'fast' if 'fast' in volume.get('volume_type') else 'basic'
+        return {'size': volume.get('size') * 1024, 'type': volume_type}
+
     def get_flavor_info(self, flavor_id):
         flavor = self.nova.flavors.find(id=flavor_id)
         if not flavor:
@@ -66,6 +75,8 @@ class ProjectConnector:
         subnet_ips = list(server.networks.values())
         ip = subnet_ips[0][0] if subnet_ips and subnet_ips[0] else None
         server_dict['ip'] = ip
+        server_dict['volume'] = self.get_volume_info(
+            getattr(server, 'os-extended-volumes:volumes_attached')[0].get('id'))
         return server_dict
 
     def get_all_servers(self, tags=None):
@@ -75,14 +86,3 @@ class ProjectConnector:
         for server in servers:
             pprint(self.serialize_server(server))
 
-            # print(nova.flavors.list())
-
-# servers = nova.servers.list()
-# print(servers[0])
-# print(dir(servers[0]))
-# print(servers[0].networks)
-# print(servers[0].flavor)
-# print(servers[0].status)
-# print(servers[0].set_tags(['asd', 'tes8t', 'jjj']))
-# print(servers[0].tag_list())
-# print(servers[0].tags)

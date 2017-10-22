@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 import os
 import django
 import requests
@@ -76,71 +77,72 @@ def create_image(data, metric_type):
     return buf
 
 
-def check_notifications():
+def check_notifications(notify):
     print('Checking notifications')
-    notifies = Notification.objects.filter(is_running=True)
 
-    for notify in notifies:
-        time_range = datetime.datetime.utcnow() - timedelta(minutes=120)
-        metric_url = SELECTEL_LINK.format(notify.server_id, time_range, METRIC_TYPES.get(notify.data_type)['name'])
+    time_range = datetime.datetime.utcnow() - timedelta(minutes=120)
+    metric_url = SELECTEL_LINK.format(notify.server_id, time_range, METRIC_TYPES.get(notify.data_type)['name'])
 
-        headers = {
-            'X-Auth-Token': notify.project.token
-        }
+    headers = {
+        'X-Auth-Token': notify.project.token
+    }
 
-        response = requests.get(metric_url, headers=headers)
+    response = requests.get(metric_url, headers=headers)
 
-        print(response.status_code)
+    print(response.status_code)
 
-        if response.status_code == 200:
-            data = response.json()
-            current_data = data[-1]
-            data_time = current_data[0]
-            current_threshold = current_data[2]
+    if response.status_code == 200:
+        data = response.json()
+        current_data = data[-1]
+        data_time = current_data[0]
+        current_threshold = current_data[2]
 
-            data_time = datetime.datetime.strptime(data_time.split('+')[0], '%Y-%m-%dT%X')
+        data_time = datetime.datetime.strptime(data_time.split('+')[0], '%Y-%m-%dT%X')
 
-            if notify.last_call:
-                plus_date = notify.last_call + datetime.timedelta(minutes=1)
-            else:
-                plus_date = data_time
+        if notify.last_call:
+            plus_date = notify.last_call + datetime.timedelta(minutes=1)
+        else:
+            plus_date = data_time
 
-            if current_threshold > notify.threshold and data_time >= plus_date:
-                metric_image = create_image(data, METRIC_TYPES.get(notify.data_type))
-                user_vk_id = notify.project.user.vk_id
-                session = vk.Session(access_token=API_TOKEN2)
-                vkapi = vk.API(session)
+        if current_threshold > notify.threshold and data_time >= plus_date:
+            metric_image = create_image(data, METRIC_TYPES.get(notify.data_type))
+            user_vk_id = notify.project.user.vk_id
+            session = vk.Session(access_token=API_TOKEN2)
+            vkapi = vk.API(session)
 
-                upload_url = vkapi.photos.getMessagesUploadServer(peer_id=user_vk_id)
+            upload_url = vkapi.photos.getMessagesUploadServer(peer_id=user_vk_id)
 
-                ur = requests.post(upload_url['upload_url'],
-                                   files={'photo': ('metric.png', metric_image.getvalue())}).json()
-                result = vkapi.photos.saveMessagesPhoto(photo=ur['photo'], server=ur['server'], hash=ur['hash'])
+            ur = requests.post(upload_url['upload_url'],
+                               files={'photo': ('metric.png', metric_image.getvalue())}).json()
+            result = vkapi.photos.saveMessagesPhoto(photo=ur['photo'], server=ur['server'], hash=ur['hash'])
 
-                res = requests.get(
-                    SERVER_DETAIL_URL.format(notify.server_id),
-                    headers=headers)
+            res = requests.get(
+                SERVER_DETAIL_URL.format(notify.server_id),
+                headers=headers)
 
-                message = '''❗️❗️❗️ \nДостигнут лимит {}\n❗️❗️❗\nСервер: {}\nЛимит: {}{}\nАктуальное значение: {}\n
-                          '''.format(METRIC_TYPES.get(notify.data_type)['label'],
-                                     res.json()['server']['name'],
-                                     notify.threshold,
-                                     METRIC_TYPES.get(notify.data_type)['quantity'],
-                                     current_threshold)
+            message = '''❗️❗️❗️ \nДостигнут лимит {}\n❗️❗️❗\nСервер: {}\nЛимит: {}{}\nАктуальное значение: {}\n
+                      '''.format(METRIC_TYPES.get(notify.data_type)['label'],
+                                 res.json()['server']['name'],
+                                 notify.threshold,
+                                 METRIC_TYPES.get(notify.data_type)['quantity'],
+                                 current_threshold)
 
-                vkapi.messages.send(user_id=user_vk_id, message=message, attachment=result[0]['id'])
+            vkapi.messages.send(user_id=user_vk_id, message=message, attachment=result[0]['id'])
 
-                notify.last_call = data_time
-                notify.save()
+            notify.last_call = data_time
+            notify.save()
 
-                print('Sent')
+            print('Sent')
 
 
 while True:
-    try:
-        check_notifications()
-    except Exception as e:
-        print(e)
-        pass
+    notifies = Notification.objects.filter(is_running=True)
+
+    for notify in notifies:
+        try:
+            check_notifications(notify)
+        except Exception as e:
+            print(e)
+            pass
 
     time.sleep(300)

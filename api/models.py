@@ -8,7 +8,7 @@ class User(models.Model):
     api_token = models.CharField(max_length=255)
     token = models.CharField(max_length=1024)
 
-    def create__or_update_projects(self):
+    def r(self):
         for project in get_projects(self.api_token):
             proj, _ = Project.objects.update_or_create(project_id=project.get('id'),
                                                        defaults={

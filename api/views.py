@@ -22,8 +22,8 @@ class RegisterView(APIView):
             return HttpResponseBadRequest()
 
         token = str(uuid.uuid4())
-        User.objects.update_or_create(vk_id=vk_id, defaults={'token': token, 'api_token': api_token})
-
+        user, _ = User.objects.update_or_create(vk_id=vk_id, defaults={'token': token, 'api_token': api_token})
+        user.create__or_update_projects()
         return Response(status=status.HTTP_201_CREATED, data={'token': token})
 
 
@@ -167,8 +167,9 @@ class NotificationView(APIView):
     parser_classes = (JSONParser,)
 
     def post(self, request, server_id):
+        project_name = request.data.get('project_name')
         req = {
-            'project': request.user.projects.filter(name=request.data.get('project_name')).first(),
+            'project': request.user.projects.filter(name=project_name).first(),
             'server_id': server_id,
             'threshold': request.data.get('threshold'),
             'data_type': request.data.get('data_type')

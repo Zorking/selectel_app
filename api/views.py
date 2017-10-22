@@ -79,8 +79,8 @@ class ServerHardReboot(APIView):
     renderer_classes = (JSONRenderer,)
     parser_classes = (JSONParser,)
 
-    def get(self, request, server_id):
-        project_name = request.GET.get('project_name')
+    def post(self, request, server_id):
+        project_name = request.data.get('project_name')
         project = request.user.projects.filter(name=project_name).first()
         if not project:
             return HttpResponseBadRequest()
@@ -96,8 +96,8 @@ class ServerSoftReboot(APIView):
     renderer_classes = (JSONRenderer,)
     parser_classes = (JSONParser,)
 
-    def get(self, request, server_id):
-        project_name = request.GET.get('project_name')
+    def post(self, request, server_id):
+        project_name = request.data.get('project_name')
         project = request.user.projects.filter(name=project_name).first()
         if not project:
             return HttpResponseBadRequest()
@@ -113,8 +113,8 @@ class ServerPause(APIView):
     renderer_classes = (JSONRenderer,)
     parser_classes = (JSONParser,)
 
-    def get(self, request, server_id):
-        project_name = request.GET.get('project_name')
+    def post(self, request, server_id):
+        project_name = request.data.get('project_name')
         project = request.user.projects.filter(name=project_name).first()
         if not project:
             return HttpResponseBadRequest()
@@ -130,8 +130,8 @@ class ServerUnpause(APIView):
     renderer_classes = (JSONRenderer,)
     parser_classes = (JSONParser,)
 
-    def get(self, request, server_id):
-        project_name = request.GET.get('project_name')
+    def post(self, request, server_id):
+        project_name = request.data.get('project_name')
         project = request.user.projects.filter(name=project_name).first()
         if not project:
             return HttpResponseBadRequest()
@@ -147,8 +147,8 @@ class ServerStart(APIView):
     renderer_classes = (JSONRenderer,)
     parser_classes = (JSONParser,)
 
-    def get(self, request, server_id):
-        project_name = request.GET.get('project_name')
+    def post(self, request, server_id):
+        project_name = request.data.get('project_name')
         project = request.user.projects.filter(name=project_name).first()
         if not project:
             return HttpResponseBadRequest()
@@ -164,8 +164,8 @@ class ServerStop(APIView):
     renderer_classes = (JSONRenderer,)
     parser_classes = (JSONParser,)
 
-    def get(self, request, server_id):
-        project_name = request.GET.get('project_name')
+    def post(self, request, server_id):
+        project_name = request.data.get('project_name')
         project = request.user.projects.filter(name=project_name).first()
         if not project:
             return HttpResponseBadRequest()

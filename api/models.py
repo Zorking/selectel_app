@@ -30,3 +30,14 @@ class Project(models.Model):
         if token:
             self.token = token
             self.save()
+
+
+class Notification(models.Model):
+    project = models.ForeignKey(to=Project)
+    data_type = models.CharField(choices=(('CPU', 'cpu'),
+                                          ('RAM', 'ram')),
+                                 max_length=20)
+    threshold = models.FloatField()
+    server_id = models.CharField(max_length=1024)
+    is_running = models.BooleanField(default=True)
+    last_call = models.DateTimeField(null=True, blank=True)

@@ -5,9 +5,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
 from api.auth import VkAuthentication
-from api.models import User
+from api.models import User, Notification
 from api.utils.servers import ServerAction
-from api.utils.support import get_sid, get_tickets
 from api.utils import view_helper
 import uuid
 
@@ -16,7 +15,7 @@ class RegisterView(APIView):
     parser_classes = (JSONParser,)
 
     def post(self, request):
-        vk_id = request.data.get('viewer_id')
+        vk_id = request.GET.get('viewer_id')
         api_token = request.data.get('api_token')
 
         if not vk_id or not api_token:
@@ -26,21 +25,6 @@ class RegisterView(APIView):
         User.objects.update_or_create(vk_id=vk_id, defaults={'token': token, 'api_token': api_token})
 
         return Response(status=status.HTTP_201_CREATED, data={'token': token})
-
-
-class TicketsView(APIView):
-    authentication_classes = (VkAuthentication,)
-    renderer_classes = (JSONRenderer,)
-    parser_classes = (JSONParser,)
-
-    def get(self, request):
-        content = get_tickets(request.user.uid, request.user.sid)
-        if not content:
-            return HttpResponseBadRequest()
-        return Response(content)
-
-    def post(self, request):
-        pass
 
 
 class ServersView(APIView):
@@ -174,4 +158,40 @@ class ServerStop(APIView):
         sa.stop()
         if not sa:
             return HttpResponseBadRequest()
+        return Response()
+
+
+class NotificationView(APIView):
+    authentication_classes = (VkAuthentication,)
+    renderer_classes = (JSONRenderer,)
+    parser_classes = (JSONParser,)
+
+    def post(self, request, server_id):
+        req = {
+            'project': request.user.projects.filter(name=request.data.get('project_name')).first(),
+            'server_id': server_id,
+            'threshold': request.data.get('threshold'),
+            'data_type': request.data.get('data_type')
+        }
+        if None in req.values():
+            return Response(status=400)
+        Notification.objects.create(**req)
+        return Response()
+
+    def get(self, request, server_id):
+        notifications = request.user.projects.filter(notification__server_id=server_id)
+        return Response(notifications)
+
+    def put(self, request, server_id):
+        n_id = request.data.get('notification_id')
+        if not n_id:
+            return Response(status=400)
+        try:
+            notification = Notification.objects.get()
+        except Notification.DoesNotExist:
+            return Response(status=404)
+        to_update = request.data
+        for k, v in to_update.items():
+            setattr(notification, k, v)
+        notification.save(update_fields=['threshold', 'is_running'])
         return Response()

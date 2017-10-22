@@ -25,7 +25,7 @@ SECRET_KEY = '%_!gv7!t2s2l4(^m^fz$5zu&wutxy_2=jpadj+@ctk+2y$ypy-'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['itjustworks.me', '127.0.0.1']
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -124,6 +124,7 @@ USE_TZ = True
 STATIC_URL = '/static/'
 CORS_ORIGIN_ALLOW_ALL = True
 TEMPLATE_DIRS = (os.path.join(BASE_DIR,  'templates'),)
+X_FRAME_OPTIONS = 'ALLOW'
 
 try:
     from local_settings import *

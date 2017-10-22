@@ -5,16 +5,16 @@ from novaclient.exceptions import NotFound as nova_err
 from .servers import ProjectConnector
 
 
-def get_server_list(user):
+def get_server_list(user, tags=None):
     res = []
     for project in user.projects.all():
         conn = ProjectConnector(project)
         try:
-            servers = conn.get_all_servers()
+            servers = conn.get_all_servers(tags)
         except (keystone_err, nova_err):
             conn.auth(refresh=True)
             try:
-                servers = conn.get_all_servers()
+                servers = conn.get_all_servers(tags)
             except (keystone_err, nova_err):
                 servers = []
         res.extend(servers)

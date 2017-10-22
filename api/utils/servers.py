@@ -82,7 +82,7 @@ class ProjectConnector:
 
     def get_all_servers(self, tags=None):
         res = []
-        servers = self.nova.servers.list()
+        servers = self.nova.servers.list(tags)
         for server in servers:
             res.append(self.serialize_server(server))
         return res

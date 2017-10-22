@@ -23,7 +23,7 @@ class RegisterView(APIView):
 
         token = str(uuid.uuid4())
         user, _ = User.objects.update_or_create(vk_id=vk_id, defaults={'token': token, 'api_token': api_token})
-        user.create__or_update_projects()
+        user.create_or_update_projects()
         return Response(status=status.HTTP_201_CREATED, data={'token': token})
 
 

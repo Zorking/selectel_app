@@ -32,6 +32,5 @@ def get_details(project, flavor_id, image_id, volume_id):
         except (keystone_err, nova_err):
             raise Http404()
 
-
 def registration(vk_id, api_token):
     pass

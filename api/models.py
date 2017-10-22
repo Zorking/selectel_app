@@ -6,6 +6,7 @@ from api.utils.servers import authenticate_project, get_projects, get_region
 class User(models.Model):
     vk_id = models.IntegerField(primary_key=True)
     api_token = models.CharField(max_length=255)
+    token = models.CharField(max_length=1024)
 
     def create__or_update_projects(self):
         for project in get_projects(self.api_token):

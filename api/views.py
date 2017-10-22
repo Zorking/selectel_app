@@ -3,28 +3,29 @@ from rest_framework.parsers import JSONParser
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
+from rest_framework import status
 from api.auth import VkAuthentication
 from api.models import User
 from api.utils.servers import ServerAction
 from api.utils.support import get_sid, get_tickets
 from api.utils import view_helper
+import uuid
 
 
 class RegisterView(APIView):
     parser_classes = (JSONParser,)
 
     def post(self, request):
-        vk_id = request.GET.get('viewer_id')
-        if not vk_id:
+        vk_id = request.data.get('viewer_id')
+        api_token = request.data.get('api_token')
+
+        if not vk_id or not api_token:
             return HttpResponseBadRequest()
-        uid = request.data.get('uid')
-        password = request.data.get('password')
-        sid = get_sid(uid, password)
-        if not sid:
-            return HttpResponseBadRequest()
-        User.objects.update_or_create(uid=uid, defaults={'sid': sid, 'vk_id': vk_id})
-        return HttpResponse()
+
+        token = str(uuid.uuid4())
+        User.objects.update_or_create(vk_id=vk_id, defaults={'token': token, 'api_token': api_token})
+
+        return Response(status=status.HTTP_201_CREATED, data={'token': token})
 
 
 class TicketsView(APIView):

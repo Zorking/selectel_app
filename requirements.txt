@@ -57,5 +57,5 @@ stevedore==1.27.1
 urllib3==1.22
 vk==2.0.2
 warlock==1.2.0
-Werkzeug==0.12.2
+Werkzeug==0.15.3
 wrapt==1.10.11

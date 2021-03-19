@@ -13,7 +13,7 @@ debtcollector==1.18.0
 deprecation==1.0.1
 Django==1.11.6
 django-cors-headers==2.1.0
-djangorestframework==3.7.1
+djangorestframework==3.11.2
 gunicorn==19.7.1
 idna==2.6
 iso8601==0.1.12

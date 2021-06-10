@@ -11,7 +11,7 @@ cryptography==2.1.1
 cycler==0.10.0
 debtcollector==1.18.0
 deprecation==1.0.1
-Django==1.11.6
+Django==2.2.24
 django-cors-headers==2.1.0
 djangorestframework==3.7.1
 gunicorn==19.7.1

@@ -35,7 +35,7 @@ os-client-config==1.28.0
 osc-lib==1.7.0
 oslo.i18n==3.18.0
 oslo.serialization==2.21.1
-oslo.utils==3.30.0
+oslo.utils==4.10.1
 pbr==3.1.1
 pip-chill==0.1.6
 prettytable==0.7.2
